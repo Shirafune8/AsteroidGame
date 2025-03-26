@@ -1,5 +1,6 @@
 import pygame
 from constants import *
+from player import *
 
 def main():
 #start game
@@ -11,13 +12,21 @@ def main():
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+    clock = pygame.time.Clock() # create Clock object before game loop
+    dt = 0 # delta time
+    player = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
     # Game loop using While loop
     while True: 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+
         screen.fill((0,0,0))
+        player.draw(screen)    
         pygame.display.flip()
+
+        dt = clock.tick(60) / 1000 #convert ms to sec
 
 # no need to touch below
 if __name__ == "__main__":
