@@ -1,6 +1,8 @@
 import pygame
 from constants import *
-from player import *
+from player import Player
+from asteroid import Asteroid
+from asteroidfield import AsteroidField
 
 def main():
 #start game
@@ -11,10 +13,22 @@ def main():
     print(f"Screen height: {SCREEN_HEIGHT}")
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
+    
     clock = pygame.time.Clock() # create Clock object before game loop
     dt = 0 # delta time
-    player = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+    #create groups before you create any instances so that those instances can be immediately grouped
+    updatable = pygame.sprite.Group()
+    drawable = pygame.sprite.Group()
+    all_asteroids = pygame.sprite.Group()
+    
+    # Assign groups to Player and Asteroid class
+    Player.containers = (updatable, drawable)
+    Asteroid.containers = (all_asteroids, updatable, drawable)
+    AsteroidField.containers = updatable
+    asteroid_field = AsteroidField()
+
+    player = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2) #build last
 
     # Game loop using While loop
     while True: 
@@ -22,13 +36,22 @@ def main():
             if event.type == pygame.QUIT:
                 return
 
-        screen.fill((0,0,0))
-        player.draw(screen)   
-        player.update(dt) 
+        dt = clock.tick(60) / 1000 # limit framerate to 60 FPS and convert ms to sec
+    
+        updatable.update(dt)  # Updates all sprites in the "updatable" group
+        
+        screen.fill((0,0,0)) # creates screen colour
+
+        for sprite in drawable:
+            sprite.draw(screen)  # You must call `draw()` for each drawable sprite
+    
+        for asteroid in all_asteroids: # check if an asteroid hits the player
+            if asteroid.collision_check(player):
+                print("Game Over!")
+                exit()
+
         pygame.display.flip()
 
-        dt = clock.tick(60) / 1000 #convert ms to sec
-
-# no need to touch below
+# no need to touch belowa
 if __name__ == "__main__":
     main()
